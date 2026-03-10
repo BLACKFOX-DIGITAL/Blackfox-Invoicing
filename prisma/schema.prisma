@@ -1,0 +1,501 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id                  String            @id
+  name                String
+  email               String?
+  status              String            @default("Active")
+  address             String?
+  phone               String?
+  taxId               String?
+  currency            String            @default("USD")
+  paymentTerms        Int?
+  additionalContacts  String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  paymentMethodId     Int?
+  city                String?
+  country             String?
+  state               String?
+  website             String?
+  zip                 String?
+  companySendInvoices Boolean           @default(false)
+  contactFirstName    String?
+  contactMiddleName   String?
+  contactLastName     String?
+  contactEmail        String?
+  contactRole         String?
+  contactSendInvoices Boolean           @default(true)
+  paymentMethod       PaymentMethod?    @relation(fields: [paymentMethodId], references: [id])
+  invoices            Invoice[]
+  services            Service[]
+  statementLogs       StatementLog[]
+  workLogs            WorkLog[]
+  addresses           CustomerAddress[]
+}
+
+model CustomerAddress {
+  id                String   @id @default(uuid())
+  customerId        String
+  companyName       String?
+  address           String // Can store full multiline address
+  taxId             String?
+  contactFirstName  String?
+  contactMiddleName String?
+  contactLastName   String?
+  contactEmail      String?
+  contactPhone      String?
+  website           String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  customer          Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+}
+
+model Service {
+  id           String    @id
+  name         String
+  description  String
+  rate         Decimal
+  customerId   String?
+  customerName String?
+  customer     Customer? @relation(fields: [customerId], references: [id])
+  workLogs     WorkLog[]
+}
+
+model WorkLog {
+  id              Int      @id @default(autoincrement())
+  date            DateTime
+  customerId      String
+  serviceId       String
+  quantity        Decimal
+  rate            Decimal
+  total           Decimal
+  status          String   @default("Unbilled")
+  description     String?
+  invoiceId       String?
+  createdByUserId String?
+  invoice         Invoice? @relation(fields: [invoiceId], references: [id])
+  service         Service  @relation(fields: [serviceId], references: [id])
+  customer        Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  createdBy       User?    @relation("WorkLogCreator", fields: [createdByUserId], references: [id])
+
+  @@index([customerId])
+  @@index([serviceId])
+  @@index([invoiceId])
+  @@index([status])
+  @@index([date])
+  @@index([createdByUserId])
+}
+
+model Invoice {
+  id                 String        @id
+  customerId         String
+  clientName         String
+  clientCompany      String?
+  clientAddress      String?
+  clientTaxId        String?
+  clientEmail        String?
+  clientPhone        String?
+  date               DateTime
+  dueDate            DateTime?
+  subtotal           Decimal
+  tax                Decimal
+  total              Decimal
+  discount           Decimal       @default(0)
+  discountType       String        @default("fixed")
+  discountValue      Decimal       @default(0)
+  totalPaid          Decimal       @default(0)
+  status             String
+  publicToken        String?       @unique
+  lastReminderSentAt DateTime?
+  snoozedUntil       DateTime?
+  customer           Customer      @relation(fields: [customerId], references: [id])
+  items              InvoiceItem[]
+  payments           Payment[]
+  workLogs           WorkLog[]
+
+  @@index([customerId])
+  @@index([status])
+  @@index([date])
+}
+
+model StatementLog {
+  id          String   @id @default(cuid())
+  customerId  String
+  sentAt      DateTime @default(now())
+  startDate   DateTime
+  endDate     DateTime
+  itemCount   Int
+  totalAmount Decimal
+  status      String
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+}
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  invoiceId String
+  amount    Decimal
+  fee       Decimal  @default(0)
+  net       Decimal
+  date      DateTime @default(now())
+  method    String
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([date])
+}
+
+model InvoiceItem {
+  id          String  @id @default(uuid())
+  invoiceId   String
+  serviceName String
+  quantity    Decimal
+  rate        Decimal
+  total       Decimal
+  date        String?
+  description String?
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+}
+
+model Settings {
+  id                     Int     @id @default(autoincrement())
+  company                String  @unique @default("blackfox")
+  companyName            String
+  email                  String
+  phone                  String?
+  address                String
+  currency               String
+  taxRate                Decimal
+  defaultPaymentTerms    String
+  logoUrl                String?
+  website                String?
+  tinId                  String?
+  zohoApiKey             String?
+  zeptoMailUrl           String?
+  zeptoMailSender        String?
+  zeptoMailWebhookSecret String?
+  themeColor             String?
+}
+
+model PaymentMethod {
+  id        Int        @id @default(autoincrement())
+  type      String
+  name      String
+  details   String
+  customers Customer[]
+}
+
+model EmailLog {
+  id         Int      @id @default(autoincrement())
+  to         String
+  subject    String
+  body       String
+  status     String   @default("Sent")
+  invoiceId  String?
+  customerId String?
+  createdAt  DateTime @default(now())
+  errorMsg   String?
+  messageId  String?  @unique
+}
+
+model EmailTemplate {
+  id        String   @id @default(uuid())
+  name      String
+  subject   String
+  content   String
+  footer    String?
+  heading   String?
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id              String    @id @default(cuid())
+  name            String?
+  email           String?   @unique
+  emailVerified   DateTime?
+  image           String?
+  password        String?
+  role            String    @default("Worker")
+  company         String    @default("blackfox")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  accounts        Account[]
+  sessions        Session[]
+  workLogsCreated WorkLog[] @relation("WorkLogCreator")
+  employee        Employee?
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Counter {
+  id    String @id
+  count Int    @default(0)
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String
+  details    String?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([entityType, entityId])
+}
+
+model FinanceCategory {
+  id           Int                  @id @default(autoincrement())
+  name         String               @unique
+  type         String // "Revenue" | "Expense"
+  description  String?
+  createdAt    DateTime             @default(now())
+  transactions FinanceTransaction[]
+  estimates    FinanceEstimate[]
+}
+
+model FinanceTransaction {
+  id          Int             @id @default(autoincrement())
+  date        DateTime
+  description String
+  amount      Decimal // Positive = income, Negative = expense (auto-set by app based on category type)
+  categoryId  Int
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  category    FinanceCategory   @relation(fields: [categoryId], references: [id])
+  estimates   FinanceEstimate[]
+
+  @@index([date])
+  @@index([categoryId])
+}
+
+model FinanceEstimate {
+  id            Int                 @id @default(autoincrement())
+  date          DateTime
+  description   String
+  amount        Decimal
+  categoryId    Int
+  notes         String?
+  status        String              @default("Pending") // Pending, Approved, Rejected
+  transactionId Int?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  category      FinanceCategory     @relation(fields: [categoryId], references: [id])
+  transaction   FinanceTransaction? @relation(fields: [transactionId], references: [id])
+
+  @@index([date])
+  @@index([categoryId])
+}
+
+model VendorFinanceCategory {
+  id           Int                        @id @default(autoincrement())
+  name         String                     @unique
+  type         String // "Revenue" | "Expense"
+  description  String?
+  createdAt    DateTime                   @default(now())
+  transactions VendorFinanceTransaction[]
+  estimates    VendorFinanceEstimate[]
+}
+
+model VendorFinanceTransaction {
+  id          Int                   @id @default(autoincrement())
+  date        DateTime
+  description String
+  amount      Decimal
+  categoryId  Int
+  notes       String?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  category    VendorFinanceCategory @relation(fields: [categoryId], references: [id])
+  estimates   VendorFinanceEstimate[]
+
+  @@index([date])
+  @@index([categoryId])
+}
+
+model VendorFinanceEstimate {
+  id            Int                       @id @default(autoincrement())
+  date          DateTime
+  description   String
+  amount        Decimal
+  categoryId    Int
+  notes         String?
+  status        String                    @default("Pending") // Pending, Approved, Rejected
+  transactionId Int?
+  createdAt     DateTime                  @default(now())
+  updatedAt     DateTime                  @updatedAt
+  category      VendorFinanceCategory     @relation(fields: [categoryId], references: [id])
+  transaction   VendorFinanceTransaction? @relation(fields: [transactionId], references: [id])
+
+  @@index([date])
+  @@index([categoryId])
+}
+
+model Employee {
+  id            String    @id @default(cuid())
+  userId        String?   @unique // Optional link to User for login
+  company       String // e.g. "blackfox" or "frameit"
+  firstName     String
+  lastName      String?
+  email         String?
+  phone         String?
+  designation   String?
+  department    String?
+  joinDate      DateTime?
+  bankName      String?
+  bankAccountNo String?
+  routingNumber String?
+  paymentMethod String    @default("Bank Transfer") // "Bank Transfer" or "Cash"
+  status        String    @default("Active") // "Active" or "Archived"
+  exitDate      DateTime?
+  exitReason    String?   // "Resigned", "Terminated", "Retired", "Other"
+  exitNotes     String?
+  emergencyContactName     String?
+  emergencyContactPhone    String?
+  emergencyContactRelation String?
+  emergencyContactEmail    String?
+  grossSalary   Decimal   @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user      User?           @relation(fields: [userId], references: [id])
+  payroll   PayrollRecord[]
+  leaves    LeaveRequest[]
+  documents HRDocument[]
+  increments    SalaryIncrement[]
+
+  @@index([company])
+}
+
+model PayrollRecord {
+  id          Int       @id @default(autoincrement())
+  employeeId  String
+  month       Int
+  year        Int
+  grossSalary Decimal   @default(0)
+  breakdown   String?
+  additions   Decimal   @default(0)
+  additionsBreakdown  String? // JSON array of items: [{ name, amount }]
+  deductions  Decimal   @default(0)
+  deductionsBreakdown String? // JSON array of items: [{ name, amount }]
+  netSalary   Decimal   @default(0)
+  status      String    @default("Pending") // Pending, Paid
+  paymentDate DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([month, year])
+}
+
+model LeaveRequest {
+  id         Int      @id @default(autoincrement())
+  employeeId String
+  type       String // Annual, Sick, Casual, Unpaid
+  startDate  DateTime
+  endDate    DateTime
+  reason     String
+  isPaid     Boolean  @default(true)
+  status     String   @default("Pending") // Pending, Approved, Rejected
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+}
+
+model HRDocument {
+  id         Int      @id @default(autoincrement())
+  employeeId String
+  title      String
+  fileUrl    String
+  type       String // Contract, Policy, Request Form, etc.
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+}
+
+model SalaryComponent {
+  id        Int      @id @default(autoincrement())
+  company   String
+  name      String
+  ratio     Decimal
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([company, name])
+  @@index([company])
+}
+
+model SalaryIncrement {
+  id             Int      @id @default(autoincrement())
+  employeeId     String
+  amount         Decimal
+  effectiveMonth Int
+  effectiveYear  Int
+  isApplied      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+}
