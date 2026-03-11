@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import { Save, Building, DollarSign, Upload, Image as ImageIcon, Palette } from "lucide-react";
+import { Save, Building, DollarSign, Upload, Image as ImageIcon, Palette, Database } from "lucide-react";
 import Image from "next/image";
 import { updateSettings } from "@/app/actions/settings";
 import { useToast } from "@/components/ui/ToastProvider";
@@ -28,6 +28,7 @@ export default function SettingsForm({ initialSettings }: Props) {
         themeColor: initialSettings.themeColor || "slate",
     });
     const [saving, setSaving] = useState(false);
+    const [uploadingDb, setUploadingDb] = useState(false);
     const [activeTab, setActiveTab] = useState("company");
     const [logoPreview, setLogoPreview] = useState<string | null>(initialSettings.logoUrl || null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -85,6 +86,44 @@ export default function SettingsForm({ initialSettings }: Props) {
             toast.success("Settings saved successfully!");
         } else {
             toast.error("Failed to save settings: " + result.error);
+        }
+    };
+
+    const handleBackupDownload = () => {
+        window.location.href = "/api/database/download";
+    };
+
+    const handleBackupUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!confirm("WARNING: This will overwrite your entire database with the uploaded backup. All current data will be lost. Are you absolutely sure you want to proceed?")) {
+            e.target.value = ''; // Reset input
+            return;
+        }
+
+        setUploadingDb(true);
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const res = await fetch("/api/database/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (res.ok) {
+                toast.success("Database restored successfully. Please refresh the page.");
+                setTimeout(() => window.location.reload(), 2000);
+            } else {
+                const data = await res.json();
+                toast.error(data.error || "Failed to restore database.");
+            }
+        } catch (error) {
+            toast.error("An error occurred during restoration.");
+        } finally {
+            setUploadingDb(false);
+            e.target.value = ''; // Reset input
         }
     };
 
@@ -230,6 +269,51 @@ export default function SettingsForm({ initialSettings }: Props) {
                         </div>
                     </Card>
                 );
+            case "data":
+                return (
+                    <Card title="Data Management" className="p-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                        <div className="grid gap-6">
+                            <div className="grid gap-4">
+                                <h3 className="text-sm font-semibold text-text-main">Database Backup & Restore</h3>
+                                <p className="text-sm text-text-muted">
+                                    Download a complete backup of your system's database, including all settings, customers, invoices, and work logs. You can also upload a previously downloaded backup to restore your system.
+                                </p>
+                                
+                                <div className="p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-lg">
+                                    <p className="text-sm font-semibold text-amber-800 dark:text-amber-400 mb-2">Warning</p>
+                                    <p className="text-xs text-amber-700 dark:text-amber-500">
+                                        Restoring a backup will <strong>completely overwrite</strong> your current database. All data added since the backup was taken will be permanently lost. Proceed with caution.
+                                    </p>
+                                </div>
+                                
+                                <div className="flex flex-col sm:flex-row gap-4 mt-2">
+                                    <Button onClick={handleBackupDownload} className="flex items-center justify-center gap-2 flex-1" variant="outline">
+                                        <Database size={16} /> Download Backup
+                                    </Button>
+                                    
+                                    <div className="flex-1 relative">
+                                        <input 
+                                            type="file" 
+                                            id="db-upload"
+                                            accept=".db,.sqlite" 
+                                            onChange={handleBackupUpload}
+                                            disabled={uploadingDb}
+                                            className="hidden" 
+                                        />
+                                        <Button 
+                                            onClick={() => document.getElementById('db-upload')?.click()}
+                                            disabled={uploadingDb}
+                                            className="flex items-center justify-center gap-2 w-full"
+                                            variant="danger"
+                                        >
+                                            <Upload size={16} /> {uploadingDb ? "Restoring..." : "Restore Backup"}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </Card>
+                );
             default:
                 return <div className="text-text-muted italic">Coming soon...</div>;
         }
@@ -252,6 +336,7 @@ export default function SettingsForm({ initialSettings }: Props) {
                     {navBtn("company", "Company Profile", Building)}
                     {navBtn("financial", "Financial Config", DollarSign)}
                     {navBtn("appearance", "Appearance", Palette)}
+                    {navBtn("data", "Data Management", Database)}
                 </div>
                 <div className="md:col-span-2 space-y-6">
                     {renderContent()}
