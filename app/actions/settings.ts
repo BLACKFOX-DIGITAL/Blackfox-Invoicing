@@ -226,6 +226,24 @@ export async function uploadCompanyLogo(formData: FormData): Promise<ActionResul
         // ---------------------------------------------------------
 
         const buffer = Buffer.from(await file.arrayBuffer());
+
+        // SEC-M4: Validate actual file content via magic bytes
+        const MAGIC_BYTES: Record<string, number[]> = {
+            'jpg':  [0xFF, 0xD8, 0xFF],
+            'jpeg': [0xFF, 0xD8, 0xFF],
+            'png':  [0x89, 0x50, 0x4E, 0x47],
+            'gif':  [0x47, 0x49, 0x46],
+            'webp': [0x52, 0x49, 0x46, 0x46], // RIFF header
+        };
+        const expectedMagic = MAGIC_BYTES[ext];
+        if (expectedMagic) {
+            const fileMagic = Array.from(buffer.subarray(0, expectedMagic.length));
+            const isValid = expectedMagic.every((byte, i) => fileMagic[i] === byte);
+            if (!isValid) {
+                return { success: false, error: "File content does not match its extension. Upload rejected." };
+            }
+        }
+
         const filename = `logo-${Date.now()}.${ext}`;
         const uploadDir = path.join(process.cwd(), "public", "uploads");
 

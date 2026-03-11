@@ -569,7 +569,16 @@ export async function updateInvoiceStatus(
     id: string,
     status: string
 ): Promise<ActionResult<{ id: string }>> {
-    try {
+    return createAction("updateInvoiceStatus", async () => {
+        const session = await requireBlackfox();
+        if (!session) return { success: false, error: "Unauthorized" };
+
+        // SEC-H2: Strict allowlist for invoice statuses
+        const VALID_STATUSES = ["Draft", "Sent", "Paid", "Partially Paid", "Overdue", "Cancelled", "Void"];
+        if (!VALID_STATUSES.includes(status)) {
+            return { success: false, error: `Invalid status "${status}". Allowed: ${VALID_STATUSES.join(", ")}` };
+        }
+
         const invoice = await prisma.invoice.update({
             where: { id },
             data: { status }
@@ -586,10 +595,7 @@ export async function updateInvoiceStatus(
         revalidatePath(`/invoices/${id}`);
         revalidateTag("dashboard", "default");
         return { success: true, data: { id: invoice.id } };
-    } catch (error) {
-        console.error("Failed to update invoice status:", error);
-        return { success: false, error: "Failed to update invoice" };
-    }
+    });
 }
 
 const UpdateInvoiceSchema = z.object({
@@ -612,6 +618,9 @@ export async function updateInvoiceDetails(
     rawData: z.infer<typeof UpdateInvoiceSchema>
 ): Promise<ActionResult<{ id: string }>> {
     return createAction("updateInvoiceDetails", async () => {
+        const session = await requireBlackfox();
+        if (!session) return { success: false, error: "Unauthorized" };
+
         const data = UpdateInvoiceSchema.parse(rawData);
         const { id, items, ...updateData } = data;
 
@@ -859,23 +868,9 @@ export async function getPublicInvoice(id: string, token: string): Promise<Actio
             })) : [],
             customer: inv.customer ? {
                 name: inv.customer.name,
-                contactFirstName: (inv.customer as any).contactFirstName || undefined,
-                contactName: [(inv.customer as any).contactFirstName, (inv.customer as any).contactMiddleName, (inv.customer as any).contactLastName].filter(Boolean).join(" ") || undefined,
+                // SEC-H4: Only expose minimal customer data on public endpoint
                 email: inv.customer.email || "",
-                phone: inv.customer.phone || undefined,
-                address: inv.customer.address || undefined,
-                city: inv.customer.city || undefined,
-                state: inv.customer.state || undefined,
-                zip: inv.customer.zip || undefined,
-                country: inv.customer.country || undefined,
-                taxId: inv.customer.taxId || undefined,
                 currency: inv.customer.currency || undefined,
-                paymentMethod: inv.customer.paymentMethod ? {
-                    id: inv.customer.paymentMethod.id,
-                    type: inv.customer.paymentMethod.type,
-                    name: inv.customer.paymentMethod.name,
-                    details: inv.customer.paymentMethod.details,
-                } : null
             } : undefined
         }
     };
