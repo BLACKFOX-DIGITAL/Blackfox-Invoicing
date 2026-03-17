@@ -3,7 +3,7 @@
 import { SendMailClient } from "zeptomail";
 import { createEmailLog } from "./email-logs";
 import { prisma } from "@/lib/db";
-import { createAction } from "@/lib/action-utils";
+import { createAction, requireBlackfox } from "@/lib/action-utils";
 import { ActionResult } from "@/lib/types";
 
 export async function sendEmail({
@@ -30,6 +30,9 @@ export async function sendEmail({
     }>;
 }): Promise<ActionResult<{ message: string }>> {
     return createAction("sendEmail", async () => {
+        const session = await requireBlackfox();
+        if (!session) return { success: false, error: "Unauthorized" };
+
         // Standardize 'to' as an array of objects for ZeptoMail
         const recipients = Array.isArray(to)
             ? to

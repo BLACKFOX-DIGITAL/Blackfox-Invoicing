@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-import { auth } from "@/auth";
+import { auth, hasRole, ROLES } from "@/auth";
 
 // Types for better type safety
 type WorkLogWithRelations = {
@@ -22,7 +22,6 @@ type WorkLogWithRelations = {
 
 import { ActionResult } from "@/lib/types";
 import { createAction } from "@/lib/action-utils";
-import { ROLES } from "@/auth";
 
 export async function getWorkLogs(params?: {
     page?: number;
@@ -357,6 +356,14 @@ export async function updateWorkLog(
             return { success: false, error: "Work log not found." };
         }
 
+        // SEC-M3: Ownership check — Workers can only edit their own logs
+        const userRole = (session.user as any)?.role;
+        const userId = (session.user as any)?.id;
+        const isManager = ["Owner", "Manager", "VendorManager"].includes(userRole);
+        if (!isManager && existing.createdByUserId !== userId) {
+            return { success: false, error: "Unauthorized: You can only edit your own work logs." };
+        }
+
         const updateData: any = { ...data };
 
         if (data.date) updateData.date = new Date(data.date);
@@ -397,6 +404,17 @@ export async function deleteWorkLog(id: number): Promise<ActionResult<null>> {
         if (existing?.status === "Billed") {
             return { success: false, error: "Cannot delete a billed work log. It has already been invoiced." };
         }
+        if (!existing) {
+            return { success: false, error: "Work log not found." };
+        }
+
+        // SEC-M3: Ownership check
+        const userRole = (session.user as any)?.role;
+        const userId = (session.user as any)?.id;
+        const isManager = ["Owner", "Manager", "VendorManager"].includes(userRole);
+        if (!isManager && existing.createdByUserId !== userId) {
+            return { success: false, error: "Unauthorized: You can only delete your own work logs." };
+        }
 
         await prisma.workLog.delete({ where: { id } });
         revalidatePath("/work-logs");
@@ -409,6 +427,10 @@ export async function deleteWorkLogsBatch(ids: number[]): Promise<ActionResult<{
         const session = await auth();
         if (!session) return { success: false, error: "Unauthorized" };
 
+        const userRole = (session.user as any)?.role;
+        const userId = (session.user as any)?.id;
+        const isManager = ["Owner", "Manager", "VendorManager"].includes(userRole);
+
         // Find existing to ensure we don't delete billed logs
         const existing = await prisma.workLog.findMany({
             where: { id: { in: ids } }
@@ -416,6 +438,8 @@ export async function deleteWorkLogsBatch(ids: number[]): Promise<ActionResult<{
 
         const unbilledIds = existing
             .filter(log => log.status !== "Billed")
+            // SEC-M3: Workers can only delete their own logs
+            .filter(log => isManager || log.createdByUserId === userId)
             .map(log => log.id);
 
         if (unbilledIds.length === 0 && ids.length > 0) {

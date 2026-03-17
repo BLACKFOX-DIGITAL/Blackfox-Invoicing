@@ -23,7 +23,7 @@ export const authConfig = {
                 if (isLoggedIn) {
                     const params = new URLSearchParams(nextUrl.search);
                     const callbackUrl = params.get("callbackUrl");
-                    if (callbackUrl) {
+                    if (callbackUrl && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//")) {
                         return Response.redirect(new URL(callbackUrl, nextUrl));
                     }
                     if ((auth?.user as any)?.role === "VendorWorker") {

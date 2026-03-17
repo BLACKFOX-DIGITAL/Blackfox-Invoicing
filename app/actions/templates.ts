@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { auth, hasRole, ROLES } from "@/auth";
 import { ActionResult } from "@/lib/types";
 import { createAction } from "@/lib/action-utils";
 
@@ -58,8 +58,8 @@ export async function getTemplates(): Promise<ActionResult<any[]>> {
 
 export async function updateTemplate(id: string, data: { subject: string; content: string; heading?: string; footer?: string }): Promise<ActionResult<any>> {
     return createAction("updateTemplate", async () => {
-        const session = await auth();
-        if (!session) return { success: false, error: "Unauthorized" };
+        const isAuthorized = await hasRole([ROLES.OWNER, ROLES.MANAGER]);
+        if (!isAuthorized) return { success: false, error: "Unauthorized: Insufficient permissions." };
 
         const updated = await prisma.emailTemplate.update({
             where: { id },
@@ -78,8 +78,8 @@ export async function updateTemplate(id: string, data: { subject: string; conten
 
 export async function createTemplate(data: { name: string; subject: string; content: string; heading?: string; footer?: string; isDefault?: boolean }): Promise<ActionResult<any>> {
     return createAction("createTemplate", async () => {
-        const session = await auth();
-        if (!session) return { success: false, error: "Unauthorized" };
+        const isAuthorized = await hasRole([ROLES.OWNER, ROLES.MANAGER]);
+        if (!isAuthorized) return { success: false, error: "Unauthorized: Insufficient permissions." };
 
         const created = await prisma.emailTemplate.create({
             data: {
@@ -99,8 +99,8 @@ export async function createTemplate(data: { name: string; subject: string; cont
 
 export async function deleteTemplate(id: string): Promise<ActionResult<null>> {
     return createAction("deleteTemplate", async () => {
-        const session = await auth();
-        if (!session) return { success: false, error: "Unauthorized" };
+        const isAuthorized = await hasRole([ROLES.OWNER, ROLES.MANAGER]);
+        if (!isAuthorized) return { success: false, error: "Unauthorized: Insufficient permissions." };
 
         // BUG-04 fix: prevent deletion of built-in default templates server-side
         const existing = await prisma.emailTemplate.findUnique({ where: { id } });
