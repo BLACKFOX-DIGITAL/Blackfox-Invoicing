@@ -12,7 +12,7 @@ export const authConfig = {
         authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user;
             const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth");
-            const isAuthPage = nextUrl.pathname === "/login";
+            const isAuthPage = nextUrl.pathname === "/login" || nextUrl.pathname === "/setup";
             // QA-10 fix: exclude cron/webhook API routes from auth — they use their own
             // authentication mechanisms (CRON_SECRET / webhook signatures)
             const isPublicApiRoute = nextUrl.pathname.startsWith("/api/reminders") ||
