@@ -2,7 +2,7 @@
 # Stage 1 — Build
 # ────────────────────────────────────────────
 FROM node:20-bookworm-slim AS builder
-
+RUN apt-get update -y && apt-get install -y openssl
 WORKDIR /app
 
 COPY package*.json ./
@@ -17,7 +17,7 @@ RUN npm run build
 # Stage 2 — Production runner
 # ────────────────────────────────────────────
 FROM node:20-bookworm-slim AS runner
-
+RUN apt-get update -y && apt-get install -y openssl
 WORKDIR /app
 
 ENV NODE_ENV=production
