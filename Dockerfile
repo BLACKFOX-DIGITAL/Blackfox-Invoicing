@@ -1,8 +1,8 @@
 # ────────────────────────────────────────────
 # Stage 1 — Build
 # ────────────────────────────────────────────
-FROM node:20-alpine AS builder
-RUN apk add --no-cache openssl libc6-compat
+FROM node:20-bookworm-slim AS builder
+
 WORKDIR /app
 
 COPY package*.json ./
@@ -16,15 +16,15 @@ RUN npm run build
 # ────────────────────────────────────────────
 # Stage 2 — Production runner
 # ────────────────────────────────────────────
-FROM node:20-alpine AS runner
-RUN apk add --no-cache openssl libc6-compat
+FROM node:20-bookworm-slim AS runner
+
 WORKDIR /app
 
 ENV NODE_ENV=production
 
 # Security: run as a dedicated non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+RUN groupadd --system --gid 1001 nodejs && \
+    useradd --system --uid 1001 --gid 1001 nextjs
 
 # Copy only what is needed at runtime
 COPY --from=builder /app/.next/standalone ./
