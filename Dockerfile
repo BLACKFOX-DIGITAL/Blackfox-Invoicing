@@ -33,8 +33,11 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
+# Copy startup script
+COPY --from=builder /app/start.sh ./start.sh
+
 # Own the app directory as the non-root user
-RUN chown -R nextjs:nodejs /app
+RUN chmod +x /app/start.sh && chown -R nextjs:nodejs /app
 
 USER nextjs
 
@@ -43,4 +46,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["/app/start.sh"]

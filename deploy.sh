@@ -3,30 +3,28 @@ set -e
 
 echo "Starting Invofox deployment process..."
 
-# 1. Pull latest code (if using Git to deploy)
+# 1. Pull latest code
 echo "Pulling latest changes..."
-git pull origin main || echo "Git pull failed or not a git repository. Continuing anyway..."
+git pull origin main || echo "Git pull failed. Continuing anyway..."
 
 # 2. Check if .env file exists
 if [ ! -f .env ]; then
   echo "Error: .env file not found. Please create one from .env.example"
-  echo "You must set AUTH_SECRET, NEXTAUTH_URL, and CRON_SECRET before continuing."
   exit 1
 fi
 
-# 3. Create required directories
+# 3. Create required directories and set permissions
 echo "Creating required directories..."
 mkdir -p data uploads
-chown -R 1001:1001 uploads
+chmod 777 data uploads
 
-# 4. Build and initialize the database first
-echo "Building and initializing the database..."
-docker compose build
-docker compose --profile init run --rm db-init
-
-# 5. Start the application
-echo "Starting the application..."
+# 4. Build and start the application
+# Database is initialized automatically on first boot via start.sh
+echo "Building and starting the application..."
+docker compose build --no-cache
 docker compose up -d
 
-echo "Deployment complete! Application should be accessible on your configured port."
-echo "- For cron jobs, set up a curl to POST /api/reminders/process with your CRON_SECRET."
+echo ""
+echo "Deployment complete!"
+echo "App is running at: http://127.0.0.1:3001"
+echo "View logs: docker compose logs -f"
