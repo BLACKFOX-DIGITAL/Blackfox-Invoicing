@@ -54,7 +54,7 @@ export default function SetupForm() {
                     type="text"
                     placeholder="John Doe"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e: any) => setName(e.target.value)}
                     startIcon={<User size={18} className="text-text-muted" />}
                     required
                     className="bg-bg-surface/50"
@@ -66,7 +66,7 @@ export default function SetupForm() {
                     type="email"
                     placeholder="admin@yourdomain.com"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e: any) => setEmail(e.target.value)}
                     startIcon={<Mail size={18} className="text-text-muted" />}
                     required
                     className="bg-bg-surface/50"
@@ -78,7 +78,7 @@ export default function SetupForm() {
                     type="password"
                     placeholder="••••••••"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e: any) => setPassword(e.target.value)}
                     startIcon={<Lock size={18} className="text-text-muted" />}
                     required
                     minLength={6}
