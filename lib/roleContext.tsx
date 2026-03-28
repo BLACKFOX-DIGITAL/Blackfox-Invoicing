@@ -24,8 +24,8 @@ const RoleContext = createContext<RoleContextType | undefined>(undefined);
 
 function RoleManager({ children }: { children: ReactNode }) {
     const { data: session, status } = useSession();
-    const [role, setRole] = useState<UserRole>(ROLES.OWNER);
-    const [company, setCompany] = useState<string>("blackfox");
+    const [role, setRole] = useState<UserRole>("");
+    const [company, setCompany] = useState<string>("");
 
     // Sync with session role when authenticated
     useEffect(() => {

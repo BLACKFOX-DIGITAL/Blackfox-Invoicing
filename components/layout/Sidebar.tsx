@@ -226,7 +226,14 @@ export default function Sidebar({ isOpen, onClose, companyName, isCollapsed = fa
                 )}>
                     {/* Navigation Items */}
                     <nav className="space-y-1" aria-label="Main Navigation">
-                        {filteredItems.map((item) => {
+                        {status === "loading" ? (
+                            <div className="flex flex-col gap-2 p-2 px-4">
+                                <div className="h-10 bg-bg-app rounded-xl animate-pulse"></div>
+                                <div className="h-10 bg-bg-app rounded-xl animate-pulse"></div>
+                                <div className="h-10 bg-bg-app rounded-xl animate-pulse"></div>
+                                <div className="h-10 bg-bg-app rounded-xl animate-pulse"></div>
+                            </div>
+                        ) : filteredItems.map((item) => {
                             const isActive = pathname === item.href;
                             const isMenuOpen = openMenus.includes(item.label);
                             const hasChildren = !!item.children;

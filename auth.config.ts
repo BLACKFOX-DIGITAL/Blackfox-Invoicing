@@ -29,6 +29,9 @@ export const authConfig = {
                     if ((auth?.user as any)?.role === "VendorWorker") {
                          return Response.redirect(new URL("/work-logs", nextUrl));
                     }
+                    if ((auth?.user as any)?.role === "VendorManager") {
+                         return Response.redirect(new URL("/finance/dashboard", nextUrl));
+                    }
                     return Response.redirect(new URL("/dashboard", nextUrl));
                 }
                 return true;
@@ -44,6 +47,11 @@ export const authConfig = {
                     const path = nextUrl.pathname;
                     if (!path.startsWith("/work-logs") && !path.startsWith("/api") && !isPublicRoute) {
                         return Response.redirect(new URL("/work-logs", nextUrl));
+                    }
+                } else if (role === "VendorManager") {
+                    const path = nextUrl.pathname;
+                    if (path === "/dashboard") {
+                        return Response.redirect(new URL("/finance/dashboard", nextUrl));
                     }
                 }
             }

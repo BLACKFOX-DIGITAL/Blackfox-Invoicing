@@ -56,3 +56,6 @@ Lora-Regular.ttf
 
 # developer-only scripts
 /scripts/dev/
+
+# Personal live-server notes
+live-server-commands.md
