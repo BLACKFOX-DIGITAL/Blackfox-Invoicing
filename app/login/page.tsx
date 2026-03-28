@@ -76,11 +76,6 @@ export default function LoginPage() {
                             required
                             className="bg-bg-surface/50"
                         />
-                        <div className="flex justify-end">
-                            <button type="button" className="text-xs text-primary hover:text-primary-hover transition-colors font-medium">
-                                Forgot password?
-                            </button>
-                        </div>
                     </div>
 
                     {error && (
