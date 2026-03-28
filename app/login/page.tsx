@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { authenticate } from "@/app/actions/auth";
+import { useState } from "react";
+import { signIn } from "next-auth/react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Card from "@/components/ui/Card";
@@ -10,7 +10,30 @@ import { LogIn, ShieldCheck, Mail, Lock, Loader2 } from "lucide-react";
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [error, action, isPending] = useActionState(authenticate, undefined);
+    const [error, setError] = useState<string | undefined>();
+    const [isPending, setIsPending] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsPending(true);
+        setError(undefined);
+        try {
+            const res: any = await signIn("credentials", {
+                email,
+                password,
+                redirect: false,
+            });
+            if (res?.error) {
+                setError("Invalid email or password.");
+            } else {
+                window.location.href = "/dashboard";
+            }
+        } catch (err: any) {
+            setError(err.message || "Invalid email or password.");
+        } finally {
+            setIsPending(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-bg-app flex items-center justify-center p-4">
@@ -28,7 +51,7 @@ export default function LoginPage() {
                     <p className="text-text-muted text-sm mt-1">Please enter your details to sign in</p>
                 </div>
 
-                <form action={action} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
                     <Input
                         label="Email Address"
                         name="email"
