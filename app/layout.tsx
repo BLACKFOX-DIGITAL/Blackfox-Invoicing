@@ -4,6 +4,7 @@ import "./globals.css";
 import MainLayout from "@/components/layout/MainLayout";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import { prisma } from "@/lib/db";
+import { auth } from "@/auth";
 
 const lora = Lora({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
   let themeColor = "slate";
   let companyName = "";
   try {
@@ -76,7 +78,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           "--accent": activePalette.accent,
         } as React.CSSProperties}
       >
-        <MainLayout companyName={companyName}>
+        <MainLayout companyName={companyName} session={session}>
           <ToastProvider>
             {children}
           </ToastProvider>

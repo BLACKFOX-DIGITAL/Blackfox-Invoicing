@@ -61,9 +61,9 @@ function RoleManager({ children }: { children: ReactNode }) {
     );
 }
 
-export function RoleProvider({ children }: { children: ReactNode }) {
+export function RoleProvider({ children, session }: { children: ReactNode; session?: any }) {
     return (
-        <SessionProvider>
+        <SessionProvider session={session}>
             <RoleManager>{children}</RoleManager>
         </SessionProvider>
     );

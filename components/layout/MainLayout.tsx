@@ -49,9 +49,9 @@ function LayoutContent({ children, companyName }: LayoutContentProps) {
     );
 }
 
-export default function MainLayout({ children, companyName }: { children: React.ReactNode; companyName?: string }) {
+export default function MainLayout({ children, companyName, session }: { children: React.ReactNode; companyName?: string; session?: any }) {
     return (
-        <RoleProvider>
+        <RoleProvider session={session}>
             <LayoutContent companyName={companyName}>{children}</LayoutContent>
         </RoleProvider>
     );
