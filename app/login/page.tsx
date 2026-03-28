@@ -98,12 +98,6 @@ export default function LoginPage() {
                         {isPending ? "Signing In..." : "Sign In"}
                     </Button>
                 </form>
-
-                <div className="mt-8 pt-6 border-t border-border-subtle text-center">
-                    <p className="text-text-muted text-xs">
-                        Don't have an account? <span className="text-primary font-semibold cursor-pointer hover:underline">Contact Administrator</span>
-                    </p>
-                </div>
             </Card>
         </div>
     );
