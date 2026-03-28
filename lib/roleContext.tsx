@@ -24,35 +24,35 @@ const RoleContext = createContext<RoleContextType | undefined>(undefined);
 
 function RoleManager({ children }: { children: ReactNode }) {
     const { data: session, status } = useSession();
-    const [role, setRole] = useState<UserRole>("");
-    const [company, setCompany] = useState<string>("");
+    const [mockRole, setMockRole] = useState<UserRole>("");
 
-    // Sync with session role when authenticated
+    // Read local cache on mount/unauth, clear it when real auth begins
     useEffect(() => {
         if (status === "authenticated") {
-            const sessionRole = session?.user?.role;
-            const sessionCompany = (session?.user as any)?.company;
-            if (sessionRole) {
-                setRole(sessionRole);
-                // Clear any mock role to prevent valid session from being overridden by stale local state
-                localStorage.removeItem("mockRole");
-            }
-            if (sessionCompany) {
-                setCompany(sessionCompany);
-            }
+            localStorage.removeItem("mockRole");
         } else if (status === "unauthenticated") {
-            // Fallback to local storage for guest/dev mode only if NOT authenticated
             const savedRole = localStorage.getItem("mockRole");
             if (savedRole) {
-                setRole(savedRole);
+                setMockRole(savedRole as UserRole);
             }
         }
-    }, [session, status]);
+    }, [status]);
 
     const changeRole = (newRole: UserRole) => {
-        setRole(newRole);
+        setMockRole(newRole);
         localStorage.setItem("mockRole", newRole);
     };
+
+    // Derive the exact role immediately during render to eliminate asynchronous flashes.
+    let role: UserRole = "";
+    let company: string = "";
+
+    if (status === "authenticated" && session?.user) {
+        role = (session.user.role as string) || "";
+        company = ((session.user as any).company as string) || "";
+    } else if (status === "unauthenticated" && mockRole) {
+        role = mockRole;
+    }
 
     return (
         <RoleContext.Provider value={{ role, company, changeRole, ROLES }}>

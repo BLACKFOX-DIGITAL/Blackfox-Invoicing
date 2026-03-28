@@ -3,9 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRole } from "@/lib/roleContext";
-import { logOut } from "@/app/actions/auth";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import {
@@ -361,7 +360,7 @@ export default function Sidebar({ isOpen, onClose, companyName, isCollapsed = fa
                     </div>
 
                     <button
-                        onClick={() => logOut()}
+                        onClick={() => signOut({ callbackUrl: '/login' })}
                         className={clsx(
                             "w-full flex items-center text-[15px] font-medium text-status-error hover:bg-status-error/10 rounded-xl transition-all duration-200 group",
                             isCollapsed ? "justify-center p-3" : "gap-3 px-4 py-3"
