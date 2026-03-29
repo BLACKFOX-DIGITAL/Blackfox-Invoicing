@@ -10,8 +10,7 @@ try {
     Font.register({
         family: "Lora",
         fonts: [
-            // FALLBACK: Use Bold as regular if regular is missing to prevent total crash
-            { src: "/fonts/Lora-Bold.ttf", fontWeight: 'normal' },
+            { src: "/fonts/Lora-Regular.ttf", fontWeight: 'normal' },
             { src: "/fonts/Lora-Bold.ttf", fontWeight: 'bold' },
             { src: "/fonts/Lora-Italic.ttf", fontStyle: 'italic' }
         ]

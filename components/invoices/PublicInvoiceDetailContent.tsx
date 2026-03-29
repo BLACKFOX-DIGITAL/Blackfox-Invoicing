@@ -31,7 +31,7 @@ export default function PublicInvoiceDetailContent({
     const companyName = settings?.companyName || "Your Company";
     const companyAddress = settings?.address || "House 545/A, Road 11, Adabor\nDhaka 1207, Bangladesh";
     const companyEmail = settings?.email || "billing@blackfoxdigital.com.bd";
-    const logoUrl = settings?.logoUrl || "/logo.png";
+    const logoUrl = settings?.logoUrl || "";
 
     const formatCurrency = (val: any) => {
         const globalCurrency = settings?.currency || "USD";

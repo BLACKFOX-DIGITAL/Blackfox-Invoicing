@@ -118,7 +118,7 @@ export default function InvoiceDetailContent({
     const companyName = settings?.companyName || "Your Company";
     const companyAddress = settings?.address || "House 545/A, Road 11, Adabor\nDhaka 1207, Bangladesh";
     const companyEmail = settings?.email || "billing@blackfoxdigital.com.bd";
-    const logoUrl = settings?.logoUrl || "/logo.png";
+    const logoUrl = settings?.logoUrl || "";
     const companyPhone = settings?.phone || "";
 
     const companyDetails = settings ? {
@@ -167,7 +167,7 @@ export default function InvoiceDetailContent({
                 subject: data.subject,
                 htmlBody: buildInvoiceEmailHtml({
                     companyName: settings?.companyName || "Your Company",
-                    logoUrl: (settings?.logoUrl && settings.logoUrl.startsWith('http')) ? settings.logoUrl : (settings?.logoUrl ? `${window.location.origin}${settings.logoUrl}` : `${window.location.origin}/logo.png`),
+                    logoUrl: (settings?.logoUrl && settings.logoUrl.startsWith('http')) ? settings.logoUrl : (settings?.logoUrl ? `${window.location.origin}${settings.logoUrl}` : ""),
                     invoiceId: String(invoice.id),
                     amount: `${getCurrencySymbol(customer?.currency || settings?.currency)}${Number(invoice.balanceDue !== undefined ? invoice.balanceDue : (invoice.total || 0)).toFixed(2)}`,
                     dueDate: invoice.dueDate ? formatDate(invoice.dueDate) : "On Receipt",

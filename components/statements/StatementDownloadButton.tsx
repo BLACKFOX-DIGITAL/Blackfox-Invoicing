@@ -41,18 +41,29 @@ export default function StatementDownloadButton({
         setIsGenerating(true);
         try {
             const { pdf } = await import("@react-pdf/renderer");
-            const blob = await pdf(
-                <StatementPDF
-                    customerName={customerName}
-                    customerAddress={customerAddress}
-                    customer={customer}
-                    items={items}
-                    totalAmount={totalAmount}
-                    currency={currency}
-                    companyDetails={companyDetails}
-                    type={type}
-                />
-            ).toBlob();
+            const { fetchLogoBase64 } = await import("@/lib/pdfUtils");
+
+            // Prepare company details with base64 logo if present
+            let processedDetails = { ...companyDetails };
+            if (companyDetails?.logoUrl) {
+                const base64Logo = await fetchLogoBase64(companyDetails.logoUrl);
+                if (base64Logo) {
+                    processedDetails.logoUrl = base64Logo;
+                }
+            }
+
+            const doc = <StatementPDF
+                customerName={customerName}
+                customerAddress={customerAddress}
+                customer={customer}
+                items={items}
+                totalAmount={totalAmount}
+                currency={currency}
+                companyDetails={processedDetails}
+                type={type}
+            />;
+
+            const blob = await pdf(doc).toBlob();
 
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');

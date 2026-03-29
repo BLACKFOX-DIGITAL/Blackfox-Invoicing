@@ -21,7 +21,6 @@ export async function fetchLogoBase64(logoUrl: string): Promise<string | null> {
 
         if (!response.ok) {
             console.warn(`Logo fetch failed with status: ${response.status}`);
-            if (logoUrl !== '/logo.png') return fetchLogoBase64('/logo.png');
             return null;
         }
 
@@ -36,11 +35,7 @@ export async function fetchLogoBase64(logoUrl: string): Promise<string | null> {
             reader.readAsDataURL(blob);
         });
     } catch (e) {
-        console.error("Failed to load logo for PDF, trying fallback:", e);
-        // Fallback to static logo if the dynamic one fails
-        if (logoUrl !== '/logo.png') {
-            return fetchLogoBase64('/logo.png');
-        }
+        console.error("Failed to load logo for PDF:", e);
         return null;
     }
 }
