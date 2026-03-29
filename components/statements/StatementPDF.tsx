@@ -281,7 +281,7 @@ export default function StatementPDF({
         email: "billing@blackfox.com",
         website: "https://blackfoxdigital.com.bd",
         tinId: "5623936",
-        logoUrl: "/invofox-logo.png"
+        logoUrl: "/logo.png"
     },
     type = "outstanding"
 }: StatementPDFProps) {

@@ -53,6 +53,8 @@ Lora-Regular.ttf
 
 # uploaded files (user data — should not be in source control)
 /public/uploads/
+!/public/invofox-logo.png
+!/public/logo.png
 
 # developer-only scripts
 /scripts/dev/
