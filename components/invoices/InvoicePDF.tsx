@@ -76,7 +76,6 @@ const styles = StyleSheet.create({
     logoTitle: {
         fontSize: 27, // Scaled down
         fontFamily: "Lora",
-        fontWeight: "bold",
         letterSpacing: 1,
     },
     logoSubtitle: {
@@ -94,7 +93,6 @@ const styles = StyleSheet.create({
     },
     companyName: {
         fontSize: 12.5,
-        fontWeight: "bold",
         fontFamily: "Lora",
         marginBottom: 20,
     },
@@ -166,7 +164,6 @@ const styles = StyleSheet.create({
     clientName: {
         fontSize: 13,
         fontFamily: "Lora",
-        fontWeight: "bold",
         marginBottom: 4,
     },
     clientDetails: {
@@ -263,7 +260,6 @@ const styles = StyleSheet.create({
     itemName: {
         fontSize: 10.5,
         fontFamily: "Lora",
-        fontWeight: "bold",
         color: "#111827",
     },
     itemDesc: {
@@ -297,7 +293,6 @@ const styles = StyleSheet.create({
     totalLabel: {
         fontSize: 10.5,
         fontFamily: "Lora",
-        fontWeight: "bold",
         color: "#374151",
         paddingRight: 24,
         textAlign: "right",
@@ -320,7 +315,6 @@ const styles = StyleSheet.create({
     footerTitle: {
         fontSize: 10,
         fontFamily: "Lora",
-        fontWeight: "bold",
         color: "#1f2937",
         marginBottom: 6,
     },
