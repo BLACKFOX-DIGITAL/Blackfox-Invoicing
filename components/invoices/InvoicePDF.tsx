@@ -162,7 +162,6 @@ const styles = StyleSheet.create({
         textTransform: "uppercase",
         letterSpacing: 1.5,
         marginBottom: 6,
-        fontWeight: "bold",
     },
     clientName: {
         fontSize: 13,
@@ -193,7 +192,6 @@ const styles = StyleSheet.create({
     metaLabel: {
         fontSize: 10.5,
         fontFamily: "Lora",
-        fontWeight: "bold",
         color: "#000",
         textAlign: "right",
         paddingRight: 8,
@@ -221,7 +219,6 @@ const styles = StyleSheet.create({
     amountDueLabelText: {
         fontSize: 11,
         fontFamily: 'Lora',
-        fontWeight: 'bold',
         color: '#000',
         width: 130, // Matches exactly with metaLabel width
         textAlign: "right",
@@ -230,7 +227,6 @@ const styles = StyleSheet.create({
     amountDueValueText: {
         fontSize: 11,
         fontFamily: 'Lora',
-        fontWeight: 'bold',
         color: '#000',
         textAlign: "left",
         width: 100, // align with metaValue
@@ -253,7 +249,6 @@ const styles = StyleSheet.create({
     th: {
         fontSize: 10.5,
         fontFamily: "Lora",
-        fontWeight: "bold",
         color: "#111827",
     },
     tableRow: {
