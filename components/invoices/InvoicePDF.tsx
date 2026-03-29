@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
     },
     companyName: {
         fontSize: 12.5,
+        fontWeight: "bold",
         fontFamily: "Lora",
         marginBottom: 20,
     },
@@ -160,10 +161,12 @@ const styles = StyleSheet.create({
         textTransform: "uppercase",
         letterSpacing: 1.5,
         marginBottom: 6,
+        fontWeight: "bold",
     },
     clientName: {
         fontSize: 13,
         fontFamily: "Lora",
+        fontWeight: "bold",
         marginBottom: 4,
     },
     clientDetails: {
@@ -189,6 +192,7 @@ const styles = StyleSheet.create({
     metaLabel: {
         fontSize: 10.5,
         fontFamily: "Lora",
+        fontWeight: "bold",
         color: "#000",
         textAlign: "right",
         paddingRight: 8,
@@ -216,6 +220,7 @@ const styles = StyleSheet.create({
     amountDueLabelText: {
         fontSize: 11,
         fontFamily: 'Lora',
+        fontWeight: 'bold',
         color: '#000',
         width: 130, // Matches exactly with metaLabel width
         textAlign: "right",
@@ -224,6 +229,7 @@ const styles = StyleSheet.create({
     amountDueValueText: {
         fontSize: 11,
         fontFamily: 'Lora',
+        fontWeight: 'bold',
         color: '#000',
         textAlign: "left",
         width: 100, // align with metaValue
@@ -246,6 +252,7 @@ const styles = StyleSheet.create({
     th: {
         fontSize: 10.5,
         fontFamily: "Lora",
+        fontWeight: "bold",
         color: "#111827",
     },
     tableRow: {
@@ -260,6 +267,7 @@ const styles = StyleSheet.create({
     itemName: {
         fontSize: 10.5,
         fontFamily: "Lora",
+        fontWeight: "bold",
         color: "#111827",
     },
     itemDesc: {
@@ -315,6 +323,7 @@ const styles = StyleSheet.create({
     footerTitle: {
         fontSize: 10,
         fontFamily: "Lora",
+        fontWeight: "bold",
         color: "#1f2937",
         marginBottom: 6,
     },
