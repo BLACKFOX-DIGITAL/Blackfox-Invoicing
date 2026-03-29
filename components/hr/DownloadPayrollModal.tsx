@@ -5,8 +5,8 @@ import { X, FileText, Download, Loader2, Info } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { saveAs } from "file-saver";
-import * as XLSX from "xlsx";
-import { pdf } from "@react-pdf/renderer";
+// import * as XLSX from "xlsx";
+// import { pdf } from "@react-pdf/renderer";
 import BankTransferLetter from "./BankTransferLetter";
 import { useToast } from "@/components/ui/ToastProvider";
 import { getSettings } from "@/app/actions/settings";
@@ -63,8 +63,9 @@ export default function DownloadPayrollModal({ records, month, year, company, on
         loadSettings();
     }, []);
 
-    const handleDownloadExcel = () => {
+    const handleDownloadExcel = async () => {
         try {
+            const XLSX = await import("xlsx");
             const bankRecords = records.filter(r => r.employee.paymentMethod !== "Cash");
             if (bankRecords.length === 0) {
                 toast.error("No bank transfer records available.");
@@ -99,6 +100,7 @@ export default function DownloadPayrollModal({ records, month, year, company, on
     const handleDownloadPDF = async () => {
         setIsDownloading(true);
         try {
+            const { pdf } = await import("@react-pdf/renderer");
             const bankRecords = records.filter(r => r.employee.paymentMethod !== "Cash");
             if (bankRecords.length === 0) {
                 toast.error("No bank transfer records available to generate PDF.");

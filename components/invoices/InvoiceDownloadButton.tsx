@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { pdf } from "@react-pdf/renderer";
+// Remove top-level import to avoid Turbopack issues
+// import { pdf } from "@react-pdf/renderer";
 import InvoicePDF from "./InvoicePDF";
 import { fetchLogoBase64 } from "@/lib/pdfUtils";
 import { Loader2, Download } from "lucide-react";
@@ -63,6 +64,9 @@ export default function InvoiceDownloadButton({
 
         setIsGenerating(true);
         try {
+            // Lazy load the PDF generator to avoid bundling issues
+            const { pdf } = await import("@react-pdf/renderer");
+
             // Prepare settings with base64 logo ON DEMAND
             let pdfSettings = { ...settings };
             if (settings?.logoUrl) {

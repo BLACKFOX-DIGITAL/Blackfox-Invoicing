@@ -5,15 +5,20 @@ import { Document, Page, Text, View, StyleSheet, Image, Font, Svg, Path } from "
 import { formatDate, formatDateLong, formatDateDots } from "@/lib/format";
 import { COUNTRIES } from "@/lib/constants/countries";
 
-// Register fonts if needed, but standard fonts work well for basic serif
-Font.register({
-    family: "Lora",
-    fonts: [
-        { src: "/fonts/Lora-Regular.ttf", fontWeight: 'normal' },
-        { src: "/fonts/Lora-Bold.ttf", fontWeight: 'bold' },
-        { src: "/fonts/Lora-Italic.ttf", fontStyle: 'italic' }
-    ]
-});
+// Safe font registration
+try {
+    Font.register({
+        family: "Lora",
+        fonts: [
+            // FALLBACK: Use Bold as regular if regular is missing to prevent total crash
+            { src: "/fonts/Lora-Bold.ttf", fontWeight: 'normal' },
+            { src: "/fonts/Lora-Bold.ttf", fontWeight: 'bold' },
+            { src: "/fonts/Lora-Italic.ttf", fontStyle: 'italic' }
+        ]
+    });
+} catch (e) {
+    console.warn("Font registration failed, using standard fonts:", e);
+}
 
 const styles = StyleSheet.create({
     page: {

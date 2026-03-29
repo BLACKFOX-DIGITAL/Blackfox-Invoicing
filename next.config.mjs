@@ -12,11 +12,11 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline'", // unsafe-inline needed for Next.js hydration; unsafe-eval removed (SEC-M1)
+              "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' 'unsafe-eval'", // unsafe-eval needed for PDF and Excel libraries (SEC-M1)
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https:",
-              "connect-src 'self' https://api.zeptomail.com https://accounts.google.com",
+              "connect-src 'self' blob: https://api.zeptomail.com https://accounts.google.com",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",

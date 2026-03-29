@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Button from "@/components/ui/Button";
-import * as xlsx from "xlsx";
+// import * as xlsx from "xlsx";
 import toast from "react-hot-toast";
 import { Upload, X, AlertCircle, FileText } from "lucide-react";
 import { createWorkLogsBatch } from "@/app/actions/work-logs";
@@ -30,8 +30,9 @@ export default function ImportWorkLogsModal({ onClose, customers, services }: Im
         setParsedData([]);
 
         const reader = new FileReader();
-        reader.onload = (event) => {
+        reader.onload = async (event) => {
             try {
+                const xlsx = await import("xlsx");
                 const data = event.target?.result;
                 const workbook = xlsx.read(data, { type: 'binary' });
                 const firstSheetName = workbook.SheetNames[0];
@@ -166,7 +167,8 @@ export default function ImportWorkLogsModal({ onClose, customers, services }: Im
         });
     };
 
-    const downloadTemplate = () => {
+    const downloadTemplate = async () => {
+        const xlsx = await import("xlsx");
         const ws = xlsx.utils.aoa_to_sheet([
             ["Date", "Customer ID", "Service", "Quantity", "Description"],
             ["2024-05-12", "1001", "Web Development", "5", "Sample description"],

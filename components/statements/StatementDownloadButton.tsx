@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { pdf } from "@react-pdf/renderer";
+// import { pdf } from "@react-pdf/renderer";
 import StatementPDF from "./StatementPDF";
 import Button from "@/components/ui/Button";
 import { Download, Loader2 } from "lucide-react";
@@ -40,6 +40,7 @@ export default function StatementDownloadButton({
     const handleDownload = async () => {
         setIsGenerating(true);
         try {
+            const { pdf } = await import("@react-pdf/renderer");
             const blob = await pdf(
                 <StatementPDF
                     customerName={customerName}
